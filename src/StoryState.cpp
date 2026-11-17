@@ -7,7 +7,17 @@
 #include "SoundManager.hpp"
 
 using namespace std;
-
+// goToNextScene()
+//     
+// nextScene() changes sceneIndex from 0 to 1
+//     
+// buildChoiceButtons() prepares scene 1's buttons
+//     
+// Game loop calls StoryState::draw()
+//     
+// getCurrentScene() returns scene 1
+//     
+// Scene 1 appears on screen
 StoryState::StoryState() : GameState(), choiceButtons(), showingReply(false), replyText(""){
 }
 
