@@ -1,0 +1,11 @@
+build/
+*.exe
+*.o
+save.txt
+.vscode/
+.vs/
+TeenTalwar
+*.dll
+
+*.dll
+.windows-tools/

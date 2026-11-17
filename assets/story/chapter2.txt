@@ -1,0 +1,13 @@
+TITLE Chapter 2: The Frozen Peaks
+NPC Old Tamsin;Mountain Guide;150;190;220
+SCENE Foot of the Mountains;0;120;150;190
+LINE Old Tamsin;You beat the Forest Guardian? The whole valley is talking.
+LINE Old Tamsin;The second shard is held by the Frost Giant.
+LINE HERO;Is he as strong as they say?
+LINE Old Tamsin;Stronger. His Ice Boulder can flatten a horse.
+LINE Old Tamsin;Want some advice before you climb?
+CHOICE Yes, please.;Raise your defence and keep your distance. Take this too.;20
+CHOICE I do not need advice.;Brave, or foolish. We will soon see.;0
+SCENE The Icy Pass;0;170;200;230
+LINE Old Tamsin;The pass is cursed. The Aarijs have followed you here.
+LINE Old Tamsin;Collect more coins this time. The armoury here has better steel.

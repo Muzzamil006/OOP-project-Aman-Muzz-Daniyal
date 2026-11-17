@@ -1,0 +1,17 @@
+TITLE Chapter 1: The Whispering Forest
+NPC Elder Rowan;Village Elder;200;170;60
+NPC Mira;Trader;210;120;160
+SCENE Village of Talwarpur;0;60;90;130
+LINE Elder Rowan;Traveller! The Crystal of Light has been shattered.
+LINE Elder Rowan;The Shadow Lord split it into four shards and hid them.
+LINE HERO;Where is the first shard?
+LINE Elder Rowan;The Forest Guardian holds it, deep in the Whispering Forest.
+LINE Elder Rowan;Will you help us, traveller?
+CHOICE I will help you.;Bless you. Take this gold for the road.;30
+CHOICE What is in it for me?;Gold, and glory in the arena. Here is a start.;15
+SCENE Edge of the Forest;1;40;80;50
+LINE Mira;Psst. The only way into the forest is through Devil's Deep.
+LINE Mira;It is full of coins... and full of Evil Aarijs.
+LINE HERO;Evil Aarijs?
+LINE Mira;Touch one and you are thrown out. Grab what coins you can!
+LINE Mira;Spend the gold at my armoury before you face the Guardian.
