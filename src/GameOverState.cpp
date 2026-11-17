@@ -2,9 +2,7 @@
 #include "GameOverState.hpp"
 #include "Game.hpp"
 #include "Hero.hpp"
-
 using namespace std;
-
 GameOverState::GameOverState() : GameState(), message(""), canRetry(false), retryButton(), menuButton(){
 }
 
@@ -24,7 +22,6 @@ void GameOverState::handleInput(const sf::Event& event){
         game->showMenu();
     }
 }
-
 void GameOverState::update(float dt){
 }
 
