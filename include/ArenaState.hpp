@@ -1,20 +1,17 @@
 #ifndef ARENASTATE_HPP
 #define ARENASTATE_HPP
-
 #include <iostream>
-#include <vector>
 #include <string>
 #include "GameState.hpp"
-
 using namespace std;
-
 class Character;
 class MiniBoss;
 
 class ArenaState : public GameState{
 private:
     MiniBoss* enemy;
-    vector<string> combatLog;
+    string combatLog[3];
+    int logCount;
     float heroVelocityY;
     bool heroBlocking;
     float quickCooldown;

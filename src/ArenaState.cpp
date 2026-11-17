@@ -9,29 +9,27 @@
 
 using namespace std;
 
-const float ArenaState::MIN_GAP = 110.0f;
-const float ArenaState::LEFT_EDGE = 20.0f;
-const float ArenaState::RIGHT_EDGE = 880.0f;
-const float ArenaState::GRAVITY = 1400.0f;
-const float ArenaState::JUMP_SPEED = 620.0f;
-const float ArenaState::QUICK_COOLDOWN = 0.5f;
-const float ArenaState::POWER_COOLDOWN = 1.2f;
-const float ArenaState::SPECIAL_COOLDOWN = 5.0f;
+const float ArenaState::MIN_GAP = 110.0;
+const float ArenaState::LEFT_EDGE = 20.0;
+const float ArenaState::RIGHT_EDGE = 880.0;
+const float ArenaState::GRAVITY = 1400.0;
+const float ArenaState::JUMP_SPEED = 620.0;
+const float ArenaState::QUICK_COOLDOWN = 0.5;
+const float ArenaState::POWER_COOLDOWN = 1.2;
+const float ArenaState::SPECIAL_COOLDOWN = 5.0;
 
 ArenaState::ArenaState()
-    : GameState(), enemy(new MiniBoss()), combatLog(), heroVelocityY(0.0f), heroBlocking(false), quickCooldown(0.0f),
-      powerCooldown(0.0f), specialCooldown(0.0f), enemyMode(ENEMY_APPROACH), enemyAction(ACTION_ADVANCE), enemyTimer(0.0f),
-      enemyAttackCount(0), fightOver(false), heroWon(false), endTimer(0.0f){
+    : GameState(), enemy(new MiniBoss()), combatLog(), logCount(0), heroVelocityY(0.0), heroBlocking(false), quickCooldown(0.0),
+      powerCooldown(0.0f), specialCooldown(0.0f), enemyMode(ENEMY_APPROACH), enemyAction(ACTION_ADVANCE), enemyTimer(0.0),
+      enemyAttackCount(0), fightOver(false), heroWon(false), endTimer(0.0){
 }
-
 ArenaState::ArenaState(Game* game, MiniBoss* enemy)
-    : GameState(game), enemy(enemy), combatLog(), heroVelocityY(0.0f), heroBlocking(false), quickCooldown(0.0f),
-      powerCooldown(0.0f), specialCooldown(0.0f), enemyMode(ENEMY_APPROACH), enemyAction(ACTION_ADVANCE), enemyTimer(0.0f),
-      enemyAttackCount(0), fightOver(false), heroWon(false), endTimer(0.0f){
-    game->getHero()->setHeightAboveGround(0.0f);
+    : GameState(game), enemy(enemy), combatLog(), logCount(0), heroVelocityY(0.0), heroBlocking(false), quickCooldown(0.0),
+      powerCooldown(0.0), specialCooldown(0.0), enemyMode(ENEMY_APPROACH), enemyAction(ACTION_ADVANCE), enemyTimer(0.0),
+      enemyAttackCount(0), fightOver(false), heroWon(false), endTimer(0.0){
+    game->getHero()->setHeightAboveGround(0.0);
     addLog(enemy->getName() + " blocks the path. Fight!");
 }
-
 ArenaState::~ArenaState(){
     delete enemy;
 }
@@ -41,7 +39,7 @@ float ArenaState::getDistance() const{
 }
 
 bool ArenaState::isHeroOnGround() const{
-    return game->getHero()->getHeightAboveGround() <= 0.0f;
+    return game->getHero()->getHeightAboveGround() <= 0.0;
 }
 
 int ArenaState::calculateDamage(const Character& attacker, const Character& defender, float multiplier) const{
@@ -52,7 +50,6 @@ int ArenaState::calculateDamage(const Character& attacker, const Character& defe
     }
     return damage;
 }
-
 void ArenaState::keepApart(){
     Hero* hero = game->getHero();
     if (hero->getPositionX() < LEFT_EDGE){
@@ -69,26 +66,25 @@ void ArenaState::keepApart(){
         enemy->setPositionX(LEFT_EDGE + MIN_GAP);
     }
 }
-
 void ArenaState::heroAttack(int action){
     Hero* hero = game->getHero();
     float distance = getDistance();
-    if (action == ACTION_QUICK_ATTACK && quickCooldown <= 0.0f){
+    if (action == ACTION_QUICK_ATTACK && quickCooldown <= 0.0){
         quickCooldown = QUICK_COOLDOWN;
         hero->getSprite().playAttack();
         if (distance <= Enemy::MELEE_RANGE){
-            int damage = calculateDamage(*hero, *enemy, 1.0f);
+            int damage = calculateDamage(*hero, *enemy, 1.0);
             enemy->takeDamage(damage);
             addLog("Quick attack hits for " + to_string(damage) + ".");
         }
     }
-    else if (action == ACTION_POWER_ATTACK && powerCooldown <= 0.0f){
+    else if (action == ACTION_POWER_ATTACK && powerCooldown <= 0.0){
         powerCooldown = POWER_COOLDOWN;
         hero->getSprite().playAttack();
         if (distance <= Enemy::MELEE_RANGE){
-            int damage = calculateDamage(*hero, *enemy, 2.0f);
+            int damage = calculateDamage(*hero, *enemy, 2.0);
             enemy->takeDamage(damage);
-            enemy->moveBy(40.0f);
+            enemy->moveBy(40.0);
             addLog("Power attack smashes for " + to_string(damage) + "!");
         }
     }
@@ -242,9 +238,14 @@ void ArenaState::checkFightEnd(){
 }
 
 void ArenaState::addLog(const string& line){
-    combatLog.push_back(line);
-    if (combatLog.size() > 3){
-        combatLog.erase(combatLog.begin());
+    if (logCount < 3){
+        combatLog[logCount] = line;
+        logCount += 1;
+    }
+    else{
+        combatLog[0] = combatLog[1];
+        combatLog[1] = combatLog[2];
+        combatLog[2] = line;
     }
 }
 
@@ -307,8 +308,8 @@ void ArenaState::drawHealthBar(sf::RenderWindow& window, const Character& charac
     front.setPosition(x, y);
     front.setFillColor(sf::Color(60, 190, 80));
     window.draw(front);
-    drawText(window, character.getName() + " - " + character.getTitle(), 17, x, y - 26.0f, sf::Color(40, 25, 10));
-    drawText(window, to_string(character.getHealth()) + " / " + to_string(character.getMaxHealth()), 14, x + 5.0f, y + 1.0f);
+    drawText(window, character.getName() + " - " + character.getTitle(), 17, x, y - 26.0, sf::Color(40, 25, 10));
+    drawText(window, to_string(character.getHealth()) + " / " + to_string(character.getMaxHealth()), 14, x + 5.0, y + 1.0);
 }
 
 void ArenaState::drawCooldown(sf::RenderWindow& window, const string& label, float cooldown, float maxCooldown, float x) const{
@@ -322,7 +323,7 @@ void ArenaState::drawCooldown(sf::RenderWindow& window, const string& label, flo
     box.setOutlineColor(sf::Color(230, 190, 70));
     box.setOutlineThickness(2.0f);
     window.draw(box);
-    sf::RectangleShape fill(sf::Vector2f(200.0f * ratio, 34.0f));
+    sf::RectangleShape fill(sf::Vector2f(200.0f * ratio, 34.0));
     fill.setPosition(x, 545.0f);
     fill.setFillColor(sf::Color(20, 20, 25, 200));
     window.draw(fill);
@@ -331,15 +332,15 @@ void ArenaState::drawCooldown(sf::RenderWindow& window, const string& label, flo
 
 void ArenaState::draw(sf::RenderWindow& window) const{
     const Hero* hero = game->getHero();
-    sf::RectangleShape sky(sf::Vector2f((float)WINDOW_WIDTH, 330.0f));
+    sf::RectangleShape sky(sf::Vector2f((float)WINDOW_WIDTH, 330.0));
     sky.setFillColor(sf::Color(150, 195, 230));
     window.draw(sky);
-    sf::RectangleShape wall(sf::Vector2f((float)WINDOW_WIDTH, 110.0f));
-    wall.setPosition(0.0f, 240.0f);
+    sf::RectangleShape wall(sf::Vector2f((float)WINDOW_WIDTH, 110.0));
+    wall.setPosition(0.0, 240.0);
     wall.setFillColor(sf::Color(190, 160, 120));
     window.draw(wall);
-    sf::RectangleShape sand(sf::Vector2f((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT - 350.0f));
-    sand.setPosition(0.0f, 350.0f);
+    sf::RectangleShape sand(sf::Vector2f((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT - 350.0));
+    sand.setPosition(0.0, 350.0);
     sand.setFillColor(sf::Color(225, 190, 130));
     window.draw(sand);
 
@@ -348,22 +349,22 @@ void ArenaState::draw(sf::RenderWindow& window) const{
 
     if (!fightOver && enemyMode == ENEMY_WINDUP){
         float markY = Character::GROUND_Y - enemy->getSprite().getHeight() - 40.0f;
-        drawText(window, enemyAction == ACTION_SPECIAL ? "!!" : "!", 34, enemy->getCenterX() - 8.0f, markY, sf::Color(220, 30, 30));
+        drawText(window, enemyAction == ACTION_SPECIAL ? "!!" : "!", 34, enemy->getCenterX() - 8.0, markY, sf::Color(220, 30, 30));
     }
     if (heroBlocking){
-        drawText(window, "BLOCK", 16, hero->getCenterX() - 25.0f, Character::GROUND_Y - 230.0f, sf::Color(30, 60, 160));
+        drawText(window, "BLOCK", 16, hero->getCenterX() - 25.0f, Character::GROUND_Y - 230.0, sf::Color(30, 60, 160));
     }
 
-    drawHealthBar(window, *hero, 30.0f, 45.0f);
-    drawHealthBar(window, *enemy, 630.0f, 45.0f);
-    drawText(window, "Level " + to_string(hero->getLevel()) + "   Shards " + to_string(hero->getShards()) + "/4", 14, 30.0f, 72.0f, sf::Color(40, 25, 10));
+    drawHealthBar(window, *hero, 30.0, 45.0);
+    drawHealthBar(window, *enemy, 630.0, 45.0);
+    drawText(window, "Level " + to_string(hero->getLevel()) + "   Shards " + to_string(hero->getShards()) + "/4", 14, 30.0, 72.0, sf::Color(40, 25, 10));
 
-    drawPanel(window, 15.0f, 440.0f, 930.0f, 150.0f);
-    for (int i = 0; i < (int)combatLog.size(); i += 1){
-        drawText(window, combatLog[i], 15, 28.0f, 447.0f + i * 19.0f, i == (int)combatLog.size() - 1 ? sf::Color::White : sf::Color(170, 170, 170));
+    drawPanel(window, 15.0, 440.0, 930.0, 150.0);
+    for (int i = 0; i < logCount; i += 1){
+        drawText(window, combatLog[i], 15, 28.0, 447.0 + i * 19.0, i == logCount - 1 ? sf::Color::White : sf::Color(170, 170, 170));
     }
-    drawText(window, "Move: A/D or Arrows    Jump: W / Up    Block: S / Down", 14, 28.0f, 512.0f, sf::Color(200, 200, 200));
-    drawCooldown(window, "J / Z  Quick Attack", quickCooldown, QUICK_COOLDOWN, 28.0f);
-    drawCooldown(window, "K / X  Power Attack", powerCooldown, POWER_COOLDOWN, 243.0f);
-    drawCooldown(window, "L / C  " + hero->getSpecialName(), specialCooldown, SPECIAL_COOLDOWN, 458.0f);
+    drawText(window, "Move: A/D or Arrows    Jump: W / Up    Block: S / Down", 14, 28.0, 512.0, sf::Color(200, 200, 200));
+    drawCooldown(window, "J / Z  Quick Attack", quickCooldown, QUICK_COOLDOWN, 28.0);
+    drawCooldown(window, "K / X  Power Attack", powerCooldown, POWER_COOLDOWN, 243.0);
+    drawCooldown(window, "L / C  " + hero->getSpecialName(), specialCooldown, SPECIAL_COOLDOWN, 458.0);
 }
