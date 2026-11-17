@@ -3,7 +3,19 @@
 #include "NPC.hpp"
 
 using namespace std;
-
+// StoryManager reads a SCENE entry
+//     
+// Extract title, NPC index and background RGB values
+//     
+// Find the matching NPC pointer, if valid
+//     
+// Create StoryScene(title, background, sceneNpc)
+//     
+// Constructor stores title, background and NPC pointer
+//     
+// Dialogue and choice vectors start empty
+//     
+// Store the scene in StoryManager's scenes vector
 StoryScene::StoryScene() : title(""), background(sf::Color(30, 60, 40)), npc(nullptr), lines(), choices(){
 }
 
