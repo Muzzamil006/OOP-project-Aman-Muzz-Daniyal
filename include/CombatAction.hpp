@@ -1,10 +1,9 @@
 #ifndef COMBATACTION_HPP
 #define COMBATACTION_HPP
-
 #include <iostream>
-
 using namespace std;
 
+// fight actions used by the enemy AI 
 enum CombatAction{
     ACTION_ADVANCE,
     ACTION_RETREAT,
@@ -13,5 +12,4 @@ enum CombatAction{
     ACTION_SPECIAL,
     ACTION_REST
 };
-
 #endif
