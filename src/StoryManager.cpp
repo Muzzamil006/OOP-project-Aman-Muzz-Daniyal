@@ -4,7 +4,26 @@
 #include "NPC.hpp"
 
 using namespace std;
-
+// Game::startChapter()
+//     
+// storyManager.loadChapter(chapter)
+//     
+// clear() removes previous scenes and deletes old NPCs
+//     
+// Open assets/story/chapterN.txt
+//     
+// Read each entry:
+//     TITLE   store chapter title
+//     NPC    create and store an NPC
+//     SCENE  create and store a StoryScene
+//     LINE   add dialogue to the latest scene
+//     CHOICE add a choice to the latest scene
+//     
+// sceneIndex = 0 and lineIndex = 0 (set by clear())
+//     
+// Return true if at least one scene was loaded
+//     
+// Game creates StoryState to display the story
 StoryManager::StoryManager() : storyFolder("assets/story/"), chapterTitle(""), scenes(), npcs(), sceneIndex(0), lineIndex(0){
 }
 
