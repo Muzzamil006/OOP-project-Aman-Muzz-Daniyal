@@ -10,24 +10,51 @@ const float DevilsDeep::TOP = 90.0f;
 const float DevilsDeep::RIGHT = 920.0f;
 const float DevilsDeep::BOTTOM = 560.0f;
 
+/*
+Create a default DevilsDeep object
+Initialize the Minigame base with a 30-second time limit
+Use a target of 8 coins and 5 enemies
+Call reset() to prepare the round
+*/
 DevilsDeep::DevilsDeep()
     : Minigame("Devil's Deep", "Collect coins with WASD / arrows. Avoid the Evil Aarijs!", 30.0f),
       playerPosition(), coins(), aarijPositions(), aarijVelocities(), coinsNeeded(8), aarijCount(5){
     reset();
 }
 
+/*
+MinigameFactory creates DevilsDeep with chapter-specific settings
+Initialize the Minigame base with the name, instructions and time limit
+Store the required coin count and enemy count
+Call reset() to prepare player, coins and enemies
+*/
 DevilsDeep::DevilsDeep(float timeLimit, int coinsNeeded, int aarijCount)
     : Minigame("Devil's Deep", "Collect " + to_string(coinsNeeded) + " coins with WASD / arrows. Avoid the Evil Aarijs!", timeLimit),
       playerPosition(), coins(), aarijPositions(), aarijVelocities(), coinsNeeded(coinsNeeded), aarijCount(aarijCount){
     reset();
 }
 
+/*
+reset() or coin collection needs a random position
+Generate x using the supplied minimum horizontal position
+Generate y using the arena top and bottom bounds
+Return the position as an sf::Vector2f
+*/
 sf::Vector2f DevilsDeep::randomPoint(float minX) const{
     float x = minX + rand() % (int)(RIGHT - minX - 40.0f);
     float y = TOP + rand() % (int)(BOTTOM - TOP - 40.0f);
     return sf::Vector2f(x, y);
 }
 
+/*
+Called by construction, Start or Retry
+Restore the timer and clear score, finished and won
+Place the player at the starting position
+Clear old coin positions, enemy positions and enemy velocities
+Generate 12 coins at random positions
+Generate the configured enemies with random positions and velocities
+The round is ready to play
+*/
 void DevilsDeep::reset(){
     timeLeft = timeLimit;
     score = 0;
@@ -54,6 +81,19 @@ void DevilsDeep::reset(){
     }
 }
 
+/*
+MinigameState calls minigame->update(dt) while playing
+Return immediately if the round has already finished
+Reduce timeLeft using the inherited tickTimer(dt)
+Read held WASD or arrow keys and move the player using elapsed time
+Clamp the player position inside the arena
+For each collected coin, increase score and relocate that coin
+Move enemies and reverse velocity at arena boundaries
+On enemy collision, call finish(score >= coinsNeeded) and return
+If time runs out, call finish(score >= coinsNeeded)
+Reaching the target alone does not end the round; collision or timeout does
+MinigameState checks finished and switches to its result phase
+*/
 void DevilsDeep::update(float dt){
     if (finished){
         return;
@@ -114,6 +154,14 @@ void DevilsDeep::update(float dt){
     }
 }
 
+/*
+MinigameState calls minigame->draw(window, font)
+Draw the arena and all coin positions
+Draw enemies and their labels
+Draw the borrowed hero sprite, or a fallback rectangle if none is assigned
+Display the collected coins, target and remaining time
+MinigameState may then draw its result panel over this gameplay area
+*/
 void DevilsDeep::draw(sf::RenderWindow& window, const sf::Font& font) const{
     sf::RectangleShape arena(sf::Vector2f(RIGHT - LEFT, BOTTOM - TOP));
     arena.setPosition(LEFT, TOP);
