@@ -11,9 +11,9 @@ ShopState::ShopState() : GameState(), catalog(), buyButtons(), leaveButton(), me
 
 ShopState::ShopState(Game* game)
     : GameState(game), catalog(Item::getShopCatalog(game->getChapter())), buyButtons(),
-      leaveButton("Enter the Arena", game->getFont(), 690.0f, 520.0f, 220.0f, 50.0f),
+      leaveButton("Continue", game->getFont(), 690.0f, 520.0f, 220.0f, 50.0f),
       message("Welcome to the armoury, traveller."){
-    leaveButton.setColor(sf::Color(170, 50, 50));
+    leaveButton.setColor(sf::Color(190, 140, 40));
     for (int i = 0; i < (int)catalog.size(); i += 1){
         buyButtons.push_back(Button("Buy", game->getFont(), 520.0f, 112.0f + i * 52.0f, 90.0f, 38.0f));
     }
@@ -49,7 +49,7 @@ void ShopState::handleInput(const sf::Event& event){
         }
     }
     if (leaveButton.isClicked(event)){
-        game->startArena();
+        game->finishChapter();
     }
 }
 

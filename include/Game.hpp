@@ -57,10 +57,7 @@ public:
     void startChapter();
     void startMinigame();
     void startShop();
-    void startArena();
-    void showLevelUp();
     void finishChapter();
-    void showGameOver(const string& message, bool canRetry);
 };
 
 #endif

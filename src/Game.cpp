@@ -2,15 +2,11 @@
 #include "Game.hpp"
 #include "GameState.hpp"
 #include "Hero.hpp"
-#include "MiniBoss.hpp"
 #include "MenuState.hpp"
 #include "HeroSelectState.hpp"
 #include "StoryState.hpp"
 #include "MinigameState.hpp"
 #include "ShopState.hpp"
-#include "ArenaState.hpp"
-#include "LevelUpState.hpp"
-#include "GameOverState.hpp"
 #include "SoundManager.hpp"
 
 using namespace std;
@@ -135,12 +131,12 @@ bool Game::continueGame(){
 
 void Game::startChapter(){
     if (chapter > LAST_BUILT_CHAPTER){
-        showGameOver("Chapters 3 and 4 are coming soon. Demo complete!", false);
+        showMenu();
         return;
     }
     hero->setPositionX(150.0f);
     if (!storyManager.loadChapter(chapter)){
-        showGameOver("Could not load the story file for this chapter.", false);
+        showMenu();
         return;
     }
     requestState(new StoryState(this));
@@ -154,22 +150,9 @@ void Game::startShop(){
     requestState(new ShopState(this));
 }
 
-void Game::startArena(){
-    hero->restoreFullHealth();
-    hero->setPositionX(150.0f);
-    requestState(new ArenaState(this, MiniBoss::createForChapter(chapter)));
-}
-
-void Game::showLevelUp(){
-    requestState(new LevelUpState(this));
-}
 
 void Game::finishChapter(){
     chapter += 1;
     saveManager.save(*hero, chapter);
     startChapter();
-}
-
-void Game::showGameOver(const string& message, bool canRetry){
-    requestState(new GameOverState(this, message, canRetry));
 }
