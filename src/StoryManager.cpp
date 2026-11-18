@@ -4,26 +4,7 @@
 #include "NPC.hpp"
 
 using namespace std;
-// Game::startChapter()
-//     
-// storyManager.loadChapter(chapter)
-//     
-// clear() removes previous scenes and deletes old NPCs
-//     
-// Open assets/story/chapterN.txt
-//     
-// Read each entry:
-//     TITLE   store chapter title
-//     NPC    create and store an NPC
-//     SCENE  create and store a StoryScene
-//     LINE   add dialogue to the latest scene
-//     CHOICE add a choice to the latest scene
-//     
-// sceneIndex = 0 and lineIndex = 0 (set by clear())
-//     
-// Return true if at least one scene was loaded
-//     
-// Game creates StoryState to display the story
+
 StoryManager::StoryManager() : storyFolder("assets/story/"), chapterTitle(""), scenes(), npcs(), sceneIndex(0), lineIndex(0){
 }
 
@@ -35,6 +16,13 @@ StoryManager::~StoryManager(){
     clear();
 }
 
+/*
+Called before loading a chapter and when the manager is destroyed
+Delete the NPC objects owned by this manager
+Clear the NPC and scene vectors
+Clear the chapter title
+Reset sceneIndex and lineIndex to zero
+*/
 void StoryManager::clear(){
     for (int i = 0; i < (int)npcs.size(); i += 1){
         delete npcs[i];
@@ -62,6 +50,20 @@ vector<string> StoryManager::split(const string& text, char separator) const{
     return parts;
 }
 
+/*
+Game::startChapter() calls storyManager.loadChapter(chapter)
+clear() removes previous story data and resets both indices to zero
+Open assets/story/chapterN.txt
+Return false if the file cannot be opened
+Read each entry:
+    TITLE: store the chapter title
+    NPC: create and store an NPC
+    SCENE: create and store a StoryScene
+    LINE: add dialogue to the latest scene
+    CHOICE: add a choice to the latest scene
+Return true if at least one scene was loaded
+After successful loading, Game creates StoryState to display the story
+*/
 bool StoryManager::loadChapter(int chapter){
     clear();
     ifstream file(storyFolder + "chapter" + to_string(chapter) + ".txt");
@@ -107,18 +109,45 @@ const string& StoryManager::getChapterTitle() const{
     return chapterTitle;
 }
 
+/*
+StoryState requests the active scene for drawing or building choice buttons
+Use sceneIndex to select scenes[sceneIndex]
+Return the existing scene by const reference
+After nextScene() changes the index, this returns the new scene
+*/
 const StoryScene& StoryManager::getCurrentScene() const{
     return scenes[sceneIndex];
 }
 
+/*
+StoryState::draw() requests the active dialogue line
+Select scenes[sceneIndex]
+Use StoryScene::operator[] with lineIndex to select its dialogue line
+Return that line by const reference
+StoryState displays the speaker and text
+*/
 const DialogueLine& StoryManager::getCurrentLine() const{
     return scenes[sceneIndex][lineIndex];
 }
 
+/*
+Compare lineIndex with the final dialogue index in the current scene
+Return true when lineIndex equals getLineCount() minus one
+nextLine() uses this to decide whether it can advance
+StoryState uses this to decide whether choices should appear
+*/
 bool StoryManager::isLastLine() const{
     return lineIndex == scenes[sceneIndex].getLineCount() - 1;
 }
 
+/*
+StoryState::advance() requests the next dialogue line
+Check isLastLine()
+If already at the last line, return false
+StoryState then calls goToNextScene()
+Otherwise, increase lineIndex by one and return true
+On the next frame, StoryState::draw() displays the newly selected line
+*/
 bool StoryManager::nextLine(){
     if (isLastLine()){
         return false;
@@ -127,6 +156,15 @@ bool StoryManager::nextLine(){
     return true;
 }
 
+/*
+StoryState::goToNextScene() requests the next scene
+Check whether another scene exists
+If no scene remains, return false and StoryState asks Game to start the minigame
+Otherwise, increase sceneIndex by one
+Reset lineIndex to zero for the new scene
+Return true so StoryState rebuilds its choice buttons
+The next draw displays the new scene's first dialogue line
+*/
 bool StoryManager::nextScene(){
     if (sceneIndex + 1 >= (int)scenes.size()){
         return false;

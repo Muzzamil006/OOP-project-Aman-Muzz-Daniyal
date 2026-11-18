@@ -7,24 +7,29 @@
 #include "SoundManager.hpp"
 
 using namespace std;
-// goToNextScene()
-//     
-// nextScene() changes sceneIndex from 0 to 1
-//     
-// buildChoiceButtons() prepares scene 1's buttons
-//     
-// Game loop calls StoryState::draw()
-//     
-// getCurrentScene() returns scene 1
-//     
-// Scene 1 appears on screen
+
 StoryState::StoryState() : GameState(), choiceButtons(), showingReply(false), replyText(""){
 }
 
+/*
+Game loads the chapter into StoryManager first
+Game creates StoryState and passes its own pointer
+Initialize the GameState base class with that pointer
+Start with no reply showing and an empty reply text
+Build buttons from the current scene's stored choices
+*/
 StoryState::StoryState(Game* game) : GameState(game), choiceButtons(), showingReply(false), replyText(""){
     buildChoiceButtons();
 }
 
+/*
+Called when this story screen is created and after changing scenes
+Remove the previous scene's buttons
+Ask StoryManager for the current scene
+Read each choice's option text and create its button
+Store the buttons in choiceButtons
+Prepare buttons now; draw them only when choicesVisible() is true
+*/
 void StoryState::buildChoiceButtons(){
     choiceButtons.clear();
     const StoryScene& scene = game->getStoryManager().getCurrentScene();
@@ -37,11 +42,26 @@ void StoryState::buildChoiceButtons(){
     }
 }
 
+/*
+Ask StoryManager whether the current dialogue line is the last line
+Check whether the current scene contains choices
+Return true only if both conditions hold and no reply is showing
+Input handling and drawing use this result
+*/
 bool StoryState::choicesVisible() const{
     StoryManager& storyManager = game->getStoryManager();
     return !showingReply && storyManager.isLastLine() && storyManager.getCurrentScene().hasChoices();
 }
 
+/*
+Ask StoryManager::nextScene() to advance the scene index
+If another scene exists, its line index resets to zero
+buildChoiceButtons() prepares the new scene's buttons
+The game loop calls StoryState::draw() again
+getCurrentScene() returns the newly selected scene
+The new scene appears without creating another StoryState object
+If no scene remains, ask Game to start the minigame
+*/
 void StoryState::goToNextScene(){
     if (game->getStoryManager().nextScene()){
         buildChoiceButtons();
@@ -51,6 +71,14 @@ void StoryState::goToNextScene(){
     }
 }
 
+/*
+Called when the player presses Space or Enter, or clicks to continue
+If a choice reply is showing, hide it and move to the next scene
+If choices are visible, wait for a choice instead of advancing dialogue
+Otherwise, ask StoryManager::nextLine() to advance
+If no line remains, call goToNextScene()
+The next draw uses the updated story position
+*/
 void StoryState::advance(){
     if (showingReply){
         showingReply = false;
@@ -65,6 +93,15 @@ void StoryState::advance(){
     }
 }
 
+/*
+Receive the index selected by a choice button or number key
+Get that Choice from StoryManager's current scene
+Copy its reply into replyText
+Add any positive gold reward to the shared hero and mention it in the reply
+Set showingReply to true and play the click sound
+The next draw displays the reply instead of the dialogue line
+The next advance moves to the next scene
+*/
 void StoryState::choose(int index){
     const Choice& choice = game->getStoryManager().getCurrentScene().getChoice(index);
     replyText = choice.getReply();
@@ -76,6 +113,13 @@ void StoryState::choose(int index){
     SoundManager::getInstance().playClick();
 }
 
+/*
+The game loop passes each input event to this active screen
+If choices are visible, check choice buttons and valid number keys
+Call choose(index) for the selected option
+Return without performing ordinary dialogue advancement
+Otherwise, Space, Enter or a left mouse click calls advance()
+*/
 void StoryState::handleInput(const sf::Event& event){
     if (choicesVisible()){
         for (int i = 0; i < (int)choiceButtons.size(); i += 1){
@@ -100,10 +144,27 @@ void StoryState::handleInput(const sf::Event& event){
     }
 }
 
+/*
+The game loop calls update(dt) each frame while this state is active
+Pass the elapsed time to the shared hero's update function
+*/
 void StoryState::update(float dt){
     game->getHero()->update(dt);
 }
 
+/*
+The game loop calls draw() each frame while this state is active
+Get the current scene from StoryManager and the shared hero from Game
+Draw the scene background, grass, chapter title, scene title and gold
+Draw the hero and the scene's NPC if one exists
+Draw the dialogue panel
+If showingReply is true, display the stored choice reply
+Otherwise, get the current dialogue line and resolve HERO to the hero's name
+Draw the speaker and text
+Draw choice buttons when choicesVisible() is true
+Otherwise, draw the instruction to advance
+Changing the manager's indices makes the next frame display the new story data
+*/
 void StoryState::draw(sf::RenderWindow& window) const{
     StoryManager& storyManager = game->getStoryManager();
     const StoryScene& scene = storyManager.getCurrentScene();
